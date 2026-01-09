@@ -1,0 +1,31 @@
+[package]
+name = "luts"
+version = "0.1.0"
+description = "Address Lookup Table wrapper with deduplication and readiness tracking"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "luts"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+anchor-lang = "0.32.1"
+solana-address-lookup-table-interface = { version = "2.1", features = ["bincode"] }
+solana-sdk-ids = "2.2"
+
+[dev-dependencies]
+mollusk-helper = { path = "../../../mollusk-helper" }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
