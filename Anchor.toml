@@ -17,3 +17,5 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 \"tests/**/*.ts\""
+test-mollusk = "npm run gen-clients && cargo nextest run  --features test-sbf"
+check = "cargo check --tests --features test-sbf"

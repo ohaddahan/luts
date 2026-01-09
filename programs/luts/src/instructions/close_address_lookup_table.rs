@@ -4,6 +4,10 @@ use crate::state::user_address_lookup_table::UserAddressLookupTable;
 use anchor_lang::prelude::*;
 use solana_address_lookup_table_interface::instruction::close_lookup_table;
 
+/// Closes a deactivated Address Lookup Table and its wrapper account.
+///
+/// The LUT must be deactivated and no longer referenced by recent transactions.
+/// Rent from both the native LUT and the wrapper PDA is returned to the signer.
 #[derive(Accounts)]
 pub struct CloseAddressLookupTable<'info> {
     #[account(mut)]

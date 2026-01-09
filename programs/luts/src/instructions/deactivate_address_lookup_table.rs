@@ -4,6 +4,10 @@ use crate::state::user_address_lookup_table::UserAddressLookupTable;
 use anchor_lang::prelude::*;
 use solana_address_lookup_table_interface::instruction::deactivate_lookup_table;
 
+/// Deactivates an Address Lookup Table.
+///
+/// After deactivation, the LUT enters a cooldown period during which it cannot be used
+/// in new transactions. Once no recent transactions reference it, the LUT can be closed.
 #[derive(Accounts)]
 pub struct DeactivateAddressLookupTable<'info> {
     #[account(mut)]

@@ -1,0 +1,3 @@
+export const USER_ADDRESS_LOOKUP_TABLE_SEED = "UserAddressLookupTable";
+export const ADDRESS_LOOKUP_TABLE_PROGRAM_ID =
+  "AddressLookupTab1e1111111111111111111111111";

@@ -5,12 +5,20 @@ use crate::state::user_address_lookup_table::UserAddressLookupTable;
 use anchor_lang::prelude::*;
 use solana_address_lookup_table_interface::instruction::create_lookup_table;
 
+/// Arguments for creating a new Address Lookup Table.
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct CreateAddressLookupTableArgs {
+    /// A recent slot used to derive the LUT address (must be within ~150 slots of current).
     pub recent_slot: u64,
+    /// User-defined identifier allowing multiple LUTs per signer.
     pub id: u64,
 }
 
+/// Creates a new Address Lookup Table with an associated wrapper PDA.
+///
+/// The wrapper PDA becomes the authority of the native LUT, allowing this program
+/// to manage extensions and lifecycle. The LUT address is deterministically derived
+/// from the wrapper PDA and the recent_slot.
 #[derive(Accounts)]
 #[instruction(args: CreateAddressLookupTableArgs)]
 pub struct CreateAddressLookupTable<'info> {

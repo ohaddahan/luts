@@ -10,7 +10,10 @@
     "test": "anchor test"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.32.1"
+    "@coral-xyz/anchor": "^0.32.1",
+    "@solana/kit": "^2.1.0",
+    "@solana/spl-token": "^0.4.0",
+    "@solana/web3.js": "^1.95.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

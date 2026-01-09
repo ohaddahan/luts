@@ -7,6 +7,11 @@ use anchor_lang::solana_program::program;
 use solana_address_lookup_table_interface::instruction::extend_lookup_table;
 use solana_address_lookup_table_interface::state::AddressLookupTable;
 
+/// Extends an Address Lookup Table with new addresses.
+///
+/// Addresses to add are passed via remaining_accounts. The instruction automatically
+/// deduplicates against existing entries in the LUT. A cooldown period must have passed
+/// since the last update, and the total cannot exceed 256 addresses.
 #[derive(Accounts)]
 pub struct ExtendAddressLookupTable<'info> {
     #[account(mut)]
