@@ -19,24 +19,21 @@ pub struct UserAddressLookupTable {
         serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
     )]
     pub signer: Pubkey,
+    pub size: u64,
     pub id: u64,
     #[cfg_attr(
         feature = "serde",
         serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
     )]
     pub address_lookup_table: Pubkey,
-    #[cfg_attr(
-        feature = "serde",
-        serde(with = "serde_with::As::<Vec<serde_with::DisplayFromStr>>")
-    )]
-    pub accounts: Vec<Pubkey>,
     pub last_updated_slot: u64,
-    pub last_updated_timestamp: i64,
 }
 
 pub const USER_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR: [u8; 8] = [28, 183, 129, 166, 216, 32, 90, 100];
 
 impl UserAddressLookupTable {
+    pub const LEN: usize = 97;
+
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
         let mut data = data;

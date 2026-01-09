@@ -28,22 +28,22 @@ export enum LutsAccount {
 }
 
 export function identifyLutsAccount(
-  account: { data: ReadonlyUint8Array } | ReadonlyUint8Array,
+  account: { data: ReadonlyUint8Array } | ReadonlyUint8Array
 ): LutsAccount {
   const data = "data" in account ? account.data : account;
   if (
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([28, 183, 129, 166, 216, 32, 90, 100]),
+        new Uint8Array([28, 183, 129, 166, 216, 32, 90, 100])
       ),
-      0,
+      0
     )
   ) {
     return LutsAccount.UserAddressLookupTable;
   }
   throw new Error(
-    "The provided account could not be identified as a luts account.",
+    "The provided account could not be identified as a luts account."
   );
 }
 
@@ -55,16 +55,16 @@ export enum LutsInstruction {
 }
 
 export function identifyLutsInstruction(
-  instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array,
+  instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array
 ): LutsInstruction {
   const data = "data" in instruction ? instruction.data : instruction;
   if (
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([177, 46, 58, 36, 157, 194, 183, 58]),
+        new Uint8Array([177, 46, 58, 36, 157, 194, 183, 58])
       ),
-      0,
+      0
     )
   ) {
     return LutsInstruction.CloseAddressLookupTable;
@@ -73,9 +73,9 @@ export function identifyLutsInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([90, 11, 161, 229, 55, 168, 159, 87]),
+        new Uint8Array([90, 11, 161, 229, 55, 168, 159, 87])
       ),
-      0,
+      0
     )
   ) {
     return LutsInstruction.CreateAddressLookupTable;
@@ -84,9 +84,9 @@ export function identifyLutsInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([125, 173, 92, 250, 29, 247, 245, 192]),
+        new Uint8Array([125, 173, 92, 250, 29, 247, 245, 192])
       ),
-      0,
+      0
     )
   ) {
     return LutsInstruction.DeactivateAddressLookupTable;
@@ -95,20 +95,20 @@ export function identifyLutsInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([251, 61, 236, 47, 121, 159, 253, 159]),
+        new Uint8Array([251, 61, 236, 47, 121, 159, 253, 159])
       ),
-      0,
+      0
     )
   ) {
     return LutsInstruction.ExtendAddressLookupTable;
   }
   throw new Error(
-    "The provided instruction could not be identified as a luts instruction.",
+    "The provided instruction could not be identified as a luts instruction."
   );
 }
 
 export type ParsedLutsInstruction<
-  TProgram extends string = "846qK5Drj9NEn2P4AvXCKxoVnyYQYGzMu2W7gyvoYjHT",
+  TProgram extends string = "846qK5Drj9NEn2P4AvXCKxoVnyYQYGzMu2W7gyvoYjHT"
 > =
   | ({
       instructionType: LutsInstruction.CloseAddressLookupTable;

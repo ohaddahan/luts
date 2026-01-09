@@ -17,12 +17,8 @@ import {
   fixEncoderSize,
   getAddressDecoder,
   getAddressEncoder,
-  getArrayDecoder,
-  getArrayEncoder,
   getBytesDecoder,
   getBytesEncoder,
-  getI64Decoder,
-  getI64Encoder,
   getStructDecoder,
   getStructEncoder,
   getU64Decoder,
@@ -32,12 +28,12 @@ import {
   transformEncoder,
   type Account,
   type Address,
-  type Codec,
-  type Decoder,
   type EncodedAccount,
-  type Encoder,
   type FetchAccountConfig,
   type FetchAccountsConfig,
+  type FixedSizeCodec,
+  type FixedSizeDecoder,
+  type FixedSizeEncoder,
   type MaybeAccount,
   type MaybeEncodedAccount,
   type ReadonlyUint8Array,
@@ -49,7 +45,7 @@ export const USER_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR = new Uint8Array([
 
 export function getUserAddressLookupTableDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 8).encode(
-    USER_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR,
+    USER_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR
   );
 }
 
@@ -57,107 +53,103 @@ export type UserAddressLookupTable = {
   discriminator: ReadonlyUint8Array;
   bump: number;
   signer: Address;
+  size: bigint;
   id: bigint;
   addressLookupTable: Address;
-  accounts: Array<Address>;
   lastUpdatedSlot: bigint;
-  lastUpdatedTimestamp: bigint;
 };
 
 export type UserAddressLookupTableArgs = {
   bump: number;
   signer: Address;
+  size: number | bigint;
   id: number | bigint;
   addressLookupTable: Address;
-  accounts: Array<Address>;
   lastUpdatedSlot: number | bigint;
-  lastUpdatedTimestamp: number | bigint;
 };
 
 /** Gets the encoder for {@link UserAddressLookupTableArgs} account data. */
-export function getUserAddressLookupTableEncoder(): Encoder<UserAddressLookupTableArgs> {
+export function getUserAddressLookupTableEncoder(): FixedSizeEncoder<UserAddressLookupTableArgs> {
   return transformEncoder(
     getStructEncoder([
       ["discriminator", fixEncoderSize(getBytesEncoder(), 8)],
       ["bump", getU8Encoder()],
       ["signer", getAddressEncoder()],
+      ["size", getU64Encoder()],
       ["id", getU64Encoder()],
       ["addressLookupTable", getAddressEncoder()],
-      ["accounts", getArrayEncoder(getAddressEncoder())],
       ["lastUpdatedSlot", getU64Encoder()],
-      ["lastUpdatedTimestamp", getI64Encoder()],
     ]),
     (value) => ({
       ...value,
       discriminator: USER_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR,
-    }),
+    })
   );
 }
 
 /** Gets the decoder for {@link UserAddressLookupTable} account data. */
-export function getUserAddressLookupTableDecoder(): Decoder<UserAddressLookupTable> {
+export function getUserAddressLookupTableDecoder(): FixedSizeDecoder<UserAddressLookupTable> {
   return getStructDecoder([
     ["discriminator", fixDecoderSize(getBytesDecoder(), 8)],
     ["bump", getU8Decoder()],
     ["signer", getAddressDecoder()],
+    ["size", getU64Decoder()],
     ["id", getU64Decoder()],
     ["addressLookupTable", getAddressDecoder()],
-    ["accounts", getArrayDecoder(getAddressDecoder())],
     ["lastUpdatedSlot", getU64Decoder()],
-    ["lastUpdatedTimestamp", getI64Decoder()],
   ]);
 }
 
 /** Gets the codec for {@link UserAddressLookupTable} account data. */
-export function getUserAddressLookupTableCodec(): Codec<
+export function getUserAddressLookupTableCodec(): FixedSizeCodec<
   UserAddressLookupTableArgs,
   UserAddressLookupTable
 > {
   return combineCodec(
     getUserAddressLookupTableEncoder(),
-    getUserAddressLookupTableDecoder(),
+    getUserAddressLookupTableDecoder()
   );
 }
 
 export function decodeUserAddressLookupTable<TAddress extends string = string>(
-  encodedAccount: EncodedAccount<TAddress>,
+  encodedAccount: EncodedAccount<TAddress>
 ): Account<UserAddressLookupTable, TAddress>;
 export function decodeUserAddressLookupTable<TAddress extends string = string>(
-  encodedAccount: MaybeEncodedAccount<TAddress>,
+  encodedAccount: MaybeEncodedAccount<TAddress>
 ): MaybeAccount<UserAddressLookupTable, TAddress>;
 export function decodeUserAddressLookupTable<TAddress extends string = string>(
-  encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>,
+  encodedAccount: EncodedAccount<TAddress> | MaybeEncodedAccount<TAddress>
 ):
   | Account<UserAddressLookupTable, TAddress>
   | MaybeAccount<UserAddressLookupTable, TAddress> {
   return decodeAccount(
     encodedAccount as MaybeEncodedAccount<TAddress>,
-    getUserAddressLookupTableDecoder(),
+    getUserAddressLookupTableDecoder()
   );
 }
 
 export async function fetchUserAddressLookupTable<
-  TAddress extends string = string,
+  TAddress extends string = string
 >(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
-  config?: FetchAccountConfig,
+  config?: FetchAccountConfig
 ): Promise<Account<UserAddressLookupTable, TAddress>> {
   const maybeAccount = await fetchMaybeUserAddressLookupTable(
     rpc,
     address,
-    config,
+    config
   );
   assertAccountExists(maybeAccount);
   return maybeAccount;
 }
 
 export async function fetchMaybeUserAddressLookupTable<
-  TAddress extends string = string,
+  TAddress extends string = string
 >(
   rpc: Parameters<typeof fetchEncodedAccount>[0],
   address: Address<TAddress>,
-  config?: FetchAccountConfig,
+  config?: FetchAccountConfig
 ): Promise<MaybeAccount<UserAddressLookupTable, TAddress>> {
   const maybeAccount = await fetchEncodedAccount(rpc, address, config);
   return decodeUserAddressLookupTable(maybeAccount);
@@ -166,12 +158,12 @@ export async function fetchMaybeUserAddressLookupTable<
 export async function fetchAllUserAddressLookupTable(
   rpc: Parameters<typeof fetchEncodedAccounts>[0],
   addresses: Array<Address>,
-  config?: FetchAccountsConfig,
+  config?: FetchAccountsConfig
 ): Promise<Account<UserAddressLookupTable>[]> {
   const maybeAccounts = await fetchAllMaybeUserAddressLookupTable(
     rpc,
     addresses,
-    config,
+    config
   );
   assertAccountsExist(maybeAccounts);
   return maybeAccounts;
@@ -180,10 +172,14 @@ export async function fetchAllUserAddressLookupTable(
 export async function fetchAllMaybeUserAddressLookupTable(
   rpc: Parameters<typeof fetchEncodedAccounts>[0],
   addresses: Array<Address>,
-  config?: FetchAccountsConfig,
+  config?: FetchAccountsConfig
 ): Promise<MaybeAccount<UserAddressLookupTable>[]> {
   const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
   return maybeAccounts.map((maybeAccount) =>
-    decodeUserAddressLookupTable(maybeAccount),
+    decodeUserAddressLookupTable(maybeAccount)
   );
+}
+
+export function getUserAddressLookupTableSize(): number {
+  return 97;
 }

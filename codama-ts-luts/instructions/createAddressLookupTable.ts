@@ -41,22 +41,25 @@ export const CREATE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR = new Uint8Array([
 
 export function getCreateAddressLookupTableDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 8).encode(
-    CREATE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR,
+    CREATE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR
   );
 }
 
 export type CreateAddressLookupTableInstruction<
   TProgram extends string = typeof LUTS_PROGRAM_ADDRESS,
   TAccountSigner extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends string | AccountMeta<string> =
-    "11111111111111111111111111111111",
-  TAccountAddressLookupTableProgram extends string | AccountMeta<string> =
-    "AddressLookupTab1e1111111111111111111111111",
+  TAccountSystemProgram extends
+    | string
+    | AccountMeta<string> = "11111111111111111111111111111111",
+  TAccountAddressLookupTableProgram extends
+    | string
+    | AccountMeta<string> = "AddressLookupTab1e1111111111111111111111111",
   TAccountAddressLookupTable extends string | AccountMeta<string> = string,
   TAccountUserAddressLookupTable extends string | AccountMeta<string> = string,
-  TAccountRent extends string | AccountMeta<string> =
-    "SysvarRent111111111111111111111111111111111",
-  TRemainingAccounts extends readonly AccountMeta<string>[] = [],
+  TAccountRent extends
+    | string
+    | AccountMeta<string> = "SysvarRent111111111111111111111111111111111",
+  TRemainingAccounts extends readonly AccountMeta<string>[] = []
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
@@ -80,7 +83,7 @@ export type CreateAddressLookupTableInstruction<
       TAccountRent extends string
         ? ReadonlyAccount<TAccountRent>
         : TAccountRent,
-      ...TRemainingAccounts,
+      ...TRemainingAccounts
     ]
   >;
 
@@ -105,7 +108,7 @@ export function getCreateAddressLookupTableInstructionDataEncoder(): FixedSizeEn
     (value) => ({
       ...value,
       discriminator: CREATE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR,
-    }),
+    })
   );
 }
 
@@ -123,7 +126,7 @@ export function getCreateAddressLookupTableInstructionDataCodec(): FixedSizeCode
 > {
   return combineCodec(
     getCreateAddressLookupTableInstructionDataEncoder(),
-    getCreateAddressLookupTableInstructionDataDecoder(),
+    getCreateAddressLookupTableInstructionDataDecoder()
   );
 }
 
@@ -133,7 +136,7 @@ export type CreateAddressLookupTableInput<
   TAccountAddressLookupTableProgram extends string = string,
   TAccountAddressLookupTable extends string = string,
   TAccountUserAddressLookupTable extends string = string,
-  TAccountRent extends string = string,
+  TAccountRent extends string = string
 > = {
   signer: TransactionSigner<TAccountSigner>;
   systemProgram?: Address<TAccountSystemProgram>;
@@ -152,7 +155,7 @@ export function getCreateAddressLookupTableInstruction<
   TAccountAddressLookupTable extends string,
   TAccountUserAddressLookupTable extends string,
   TAccountRent extends string,
-  TProgramAddress extends Address = typeof LUTS_PROGRAM_ADDRESS,
+  TProgramAddress extends Address = typeof LUTS_PROGRAM_ADDRESS
 >(
   input: CreateAddressLookupTableInput<
     TAccountSigner,
@@ -162,7 +165,7 @@ export function getCreateAddressLookupTableInstruction<
     TAccountUserAddressLookupTable,
     TAccountRent
   >,
-  config?: { programAddress?: TProgramAddress },
+  config?: { programAddress?: TProgramAddress }
 ): CreateAddressLookupTableInstruction<
   TProgramAddress,
   TAccountSigner,
@@ -226,23 +229,15 @@ export function getCreateAddressLookupTableInstruction<
       getAccountMeta(accounts.rent),
     ],
     data: getCreateAddressLookupTableInstructionDataEncoder().encode(
-      args as CreateAddressLookupTableInstructionDataArgs,
+      args as CreateAddressLookupTableInstructionDataArgs
     ),
     programAddress,
-  } as CreateAddressLookupTableInstruction<
-    TProgramAddress,
-    TAccountSigner,
-    TAccountSystemProgram,
-    TAccountAddressLookupTableProgram,
-    TAccountAddressLookupTable,
-    TAccountUserAddressLookupTable,
-    TAccountRent
-  >);
+  } as CreateAddressLookupTableInstruction<TProgramAddress, TAccountSigner, TAccountSystemProgram, TAccountAddressLookupTableProgram, TAccountAddressLookupTable, TAccountUserAddressLookupTable, TAccountRent>);
 }
 
 export type ParsedCreateAddressLookupTableInstruction<
   TProgram extends string = typeof LUTS_PROGRAM_ADDRESS,
-  TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
+  TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[]
 > = {
   programAddress: Address<TProgram>;
   accounts: {
@@ -258,11 +253,11 @@ export type ParsedCreateAddressLookupTableInstruction<
 
 export function parseCreateAddressLookupTableInstruction<
   TProgram extends string,
-  TAccountMetas extends readonly AccountMeta[],
+  TAccountMetas extends readonly AccountMeta[]
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
-    InstructionWithData<ReadonlyUint8Array>,
+    InstructionWithData<ReadonlyUint8Array>
 ): ParsedCreateAddressLookupTableInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 6) {
     // TODO: Coded error.
@@ -285,7 +280,7 @@ export function parseCreateAddressLookupTableInstruction<
       rent: getNextAccount(),
     },
     data: getCreateAddressLookupTableInstructionDataDecoder().decode(
-      instruction.data,
+      instruction.data
     ),
   };
 }

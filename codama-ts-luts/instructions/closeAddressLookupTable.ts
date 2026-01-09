@@ -10,10 +10,8 @@ import {
   combineCodec,
   fixDecoderSize,
   fixEncoderSize,
-  getAddressEncoder,
   getBytesDecoder,
   getBytesEncoder,
-  getProgramDerivedAddress,
   getStructDecoder,
   getStructEncoder,
   transformEncoder,
@@ -33,11 +31,7 @@ import {
   type WritableSignerAccount,
 } from "@solana/kit";
 import { LUTS_PROGRAM_ADDRESS } from "../programs";
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from "../shared";
+import { getAccountMetaFactory, type ResolvedAccount } from "../shared";
 
 export const CLOSE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR = new Uint8Array([
   177, 46, 58, 36, 157, 194, 183, 58,
@@ -45,22 +39,25 @@ export const CLOSE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR = new Uint8Array([
 
 export function getCloseAddressLookupTableDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 8).encode(
-    CLOSE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR,
+    CLOSE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR
   );
 }
 
 export type CloseAddressLookupTableInstruction<
   TProgram extends string = typeof LUTS_PROGRAM_ADDRESS,
   TAccountSigner extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends string | AccountMeta<string> =
-    "11111111111111111111111111111111",
-  TAccountAddressLookupTableProgram extends string | AccountMeta<string> =
-    "AddressLookupTab1e1111111111111111111111111",
+  TAccountSystemProgram extends
+    | string
+    | AccountMeta<string> = "11111111111111111111111111111111",
+  TAccountAddressLookupTableProgram extends
+    | string
+    | AccountMeta<string> = "AddressLookupTab1e1111111111111111111111111",
   TAccountAddressLookupTable extends string | AccountMeta<string> = string,
   TAccountUserAddressLookupTable extends string | AccountMeta<string> = string,
-  TAccountRent extends string | AccountMeta<string> =
-    "SysvarRent111111111111111111111111111111111",
-  TRemainingAccounts extends readonly AccountMeta<string>[] = [],
+  TAccountRent extends
+    | string
+    | AccountMeta<string> = "SysvarRent111111111111111111111111111111111",
+  TRemainingAccounts extends readonly AccountMeta<string>[] = []
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
   InstructionWithAccounts<
@@ -84,7 +81,7 @@ export type CloseAddressLookupTableInstruction<
       TAccountRent extends string
         ? ReadonlyAccount<TAccountRent>
         : TAccountRent,
-      ...TRemainingAccounts,
+      ...TRemainingAccounts
     ]
   >;
 
@@ -100,7 +97,7 @@ export function getCloseAddressLookupTableInstructionDataEncoder(): FixedSizeEnc
     (value) => ({
       ...value,
       discriminator: CLOSE_ADDRESS_LOOKUP_TABLE_DISCRIMINATOR,
-    }),
+    })
   );
 }
 
@@ -116,130 +113,8 @@ export function getCloseAddressLookupTableInstructionDataCodec(): FixedSizeCodec
 > {
   return combineCodec(
     getCloseAddressLookupTableInstructionDataEncoder(),
-    getCloseAddressLookupTableInstructionDataDecoder(),
+    getCloseAddressLookupTableInstructionDataDecoder()
   );
-}
-
-export type CloseAddressLookupTableAsyncInput<
-  TAccountSigner extends string = string,
-  TAccountSystemProgram extends string = string,
-  TAccountAddressLookupTableProgram extends string = string,
-  TAccountAddressLookupTable extends string = string,
-  TAccountUserAddressLookupTable extends string = string,
-  TAccountRent extends string = string,
-> = {
-  signer: TransactionSigner<TAccountSigner>;
-  systemProgram?: Address<TAccountSystemProgram>;
-  addressLookupTableProgram?: Address<TAccountAddressLookupTableProgram>;
-  addressLookupTable: Address<TAccountAddressLookupTable>;
-  userAddressLookupTable?: Address<TAccountUserAddressLookupTable>;
-  rent?: Address<TAccountRent>;
-};
-
-export async function getCloseAddressLookupTableInstructionAsync<
-  TAccountSigner extends string,
-  TAccountSystemProgram extends string,
-  TAccountAddressLookupTableProgram extends string,
-  TAccountAddressLookupTable extends string,
-  TAccountUserAddressLookupTable extends string,
-  TAccountRent extends string,
-  TProgramAddress extends Address = typeof LUTS_PROGRAM_ADDRESS,
->(
-  input: CloseAddressLookupTableAsyncInput<
-    TAccountSigner,
-    TAccountSystemProgram,
-    TAccountAddressLookupTableProgram,
-    TAccountAddressLookupTable,
-    TAccountUserAddressLookupTable,
-    TAccountRent
-  >,
-  config?: { programAddress?: TProgramAddress },
-): Promise<
-  CloseAddressLookupTableInstruction<
-    TProgramAddress,
-    TAccountSigner,
-    TAccountSystemProgram,
-    TAccountAddressLookupTableProgram,
-    TAccountAddressLookupTable,
-    TAccountUserAddressLookupTable,
-    TAccountRent
-  >
-> {
-  // Program address.
-  const programAddress = config?.programAddress ?? LUTS_PROGRAM_ADDRESS;
-
-  // Original accounts.
-  const originalAccounts = {
-    signer: { value: input.signer ?? null, isWritable: true },
-    systemProgram: { value: input.systemProgram ?? null, isWritable: false },
-    addressLookupTableProgram: {
-      value: input.addressLookupTableProgram ?? null,
-      isWritable: false,
-    },
-    addressLookupTable: {
-      value: input.addressLookupTable ?? null,
-      isWritable: true,
-    },
-    userAddressLookupTable: {
-      value: input.userAddressLookupTable ?? null,
-      isWritable: true,
-    },
-    rent: { value: input.rent ?? null, isWritable: false },
-  };
-  const accounts = originalAccounts as Record<
-    keyof typeof originalAccounts,
-    ResolvedAccount
-  >;
-
-  // Resolve default values.
-  if (!accounts.systemProgram.value) {
-    accounts.systemProgram.value =
-      "11111111111111111111111111111111" as Address<"11111111111111111111111111111111">;
-  }
-  if (!accounts.addressLookupTableProgram.value) {
-    accounts.addressLookupTableProgram.value =
-      "AddressLookupTab1e1111111111111111111111111" as Address<"AddressLookupTab1e1111111111111111111111111">;
-  }
-  if (!accounts.userAddressLookupTable.value) {
-    accounts.userAddressLookupTable.value = await getProgramDerivedAddress({
-      programAddress,
-      seeds: [
-        getBytesEncoder().encode(
-          new Uint8Array([
-            85, 115, 101, 114, 65, 100, 100, 114, 101, 115, 115, 76, 111, 111,
-            107, 117, 112, 84, 97, 98, 108, 101,
-          ]),
-        ),
-        getAddressEncoder().encode(expectAddress(accounts.signer.value)),
-      ],
-    });
-  }
-  if (!accounts.rent.value) {
-    accounts.rent.value =
-      "SysvarRent111111111111111111111111111111111" as Address<"SysvarRent111111111111111111111111111111111">;
-  }
-
-  const getAccountMeta = getAccountMetaFactory(programAddress, "programId");
-  return Object.freeze({
-    accounts: [
-      getAccountMeta(accounts.signer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.addressLookupTableProgram),
-      getAccountMeta(accounts.addressLookupTable),
-      getAccountMeta(accounts.userAddressLookupTable),
-      getAccountMeta(accounts.rent),
-    ],
-    data: getCloseAddressLookupTableInstructionDataEncoder().encode({}),
-    programAddress,
-  } as CloseAddressLookupTableInstruction<
-    TProgramAddress,
-    TAccountSigner,
-    TAccountSystemProgram,
-    TAccountAddressLookupTableProgram,
-    TAccountAddressLookupTable,
-    TAccountUserAddressLookupTable,
-    TAccountRent
-  >);
 }
 
 export type CloseAddressLookupTableInput<
@@ -248,7 +123,7 @@ export type CloseAddressLookupTableInput<
   TAccountAddressLookupTableProgram extends string = string,
   TAccountAddressLookupTable extends string = string,
   TAccountUserAddressLookupTable extends string = string,
-  TAccountRent extends string = string,
+  TAccountRent extends string = string
 > = {
   signer: TransactionSigner<TAccountSigner>;
   systemProgram?: Address<TAccountSystemProgram>;
@@ -265,7 +140,7 @@ export function getCloseAddressLookupTableInstruction<
   TAccountAddressLookupTable extends string,
   TAccountUserAddressLookupTable extends string,
   TAccountRent extends string,
-  TProgramAddress extends Address = typeof LUTS_PROGRAM_ADDRESS,
+  TProgramAddress extends Address = typeof LUTS_PROGRAM_ADDRESS
 >(
   input: CloseAddressLookupTableInput<
     TAccountSigner,
@@ -275,7 +150,7 @@ export function getCloseAddressLookupTableInstruction<
     TAccountUserAddressLookupTable,
     TAccountRent
   >,
-  config?: { programAddress?: TProgramAddress },
+  config?: { programAddress?: TProgramAddress }
 ): CloseAddressLookupTableInstruction<
   TProgramAddress,
   TAccountSigner,
@@ -337,20 +212,12 @@ export function getCloseAddressLookupTableInstruction<
     ],
     data: getCloseAddressLookupTableInstructionDataEncoder().encode({}),
     programAddress,
-  } as CloseAddressLookupTableInstruction<
-    TProgramAddress,
-    TAccountSigner,
-    TAccountSystemProgram,
-    TAccountAddressLookupTableProgram,
-    TAccountAddressLookupTable,
-    TAccountUserAddressLookupTable,
-    TAccountRent
-  >);
+  } as CloseAddressLookupTableInstruction<TProgramAddress, TAccountSigner, TAccountSystemProgram, TAccountAddressLookupTableProgram, TAccountAddressLookupTable, TAccountUserAddressLookupTable, TAccountRent>);
 }
 
 export type ParsedCloseAddressLookupTableInstruction<
   TProgram extends string = typeof LUTS_PROGRAM_ADDRESS,
-  TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
+  TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[]
 > = {
   programAddress: Address<TProgram>;
   accounts: {
@@ -366,11 +233,11 @@ export type ParsedCloseAddressLookupTableInstruction<
 
 export function parseCloseAddressLookupTableInstruction<
   TProgram extends string,
-  TAccountMetas extends readonly AccountMeta[],
+  TAccountMetas extends readonly AccountMeta[]
 >(
   instruction: Instruction<TProgram> &
     InstructionWithAccounts<TAccountMetas> &
-    InstructionWithData<ReadonlyUint8Array>,
+    InstructionWithData<ReadonlyUint8Array>
 ): ParsedCloseAddressLookupTableInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 6) {
     // TODO: Coded error.
@@ -393,7 +260,7 @@ export function parseCloseAddressLookupTableInstruction<
       rent: getNextAccount(),
     },
     data: getCloseAddressLookupTableInstructionDataDecoder().decode(
-      instruction.data,
+      instruction.data
     ),
   };
 }

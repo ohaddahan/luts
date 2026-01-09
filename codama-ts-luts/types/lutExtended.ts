@@ -10,14 +10,10 @@ import {
   combineCodec,
   getAddressDecoder,
   getAddressEncoder,
-  getBooleanDecoder,
-  getBooleanEncoder,
   getStructDecoder,
   getStructEncoder,
   getU32Decoder,
   getU32Encoder,
-  getU64Decoder,
-  getU64Encoder,
   type Address,
   type FixedSizeCodec,
   type FixedSizeDecoder,
@@ -28,25 +24,15 @@ export type LutExtended = {
   wrapper: Address;
   addressesAdded: number;
   totalAddresses: number;
-  isReady: boolean;
-  slotsUntilReady: bigint;
 };
 
-export type LutExtendedArgs = {
-  wrapper: Address;
-  addressesAdded: number;
-  totalAddresses: number;
-  isReady: boolean;
-  slotsUntilReady: number | bigint;
-};
+export type LutExtendedArgs = LutExtended;
 
 export function getLutExtendedEncoder(): FixedSizeEncoder<LutExtendedArgs> {
   return getStructEncoder([
     ["wrapper", getAddressEncoder()],
     ["addressesAdded", getU32Encoder()],
     ["totalAddresses", getU32Encoder()],
-    ["isReady", getBooleanEncoder()],
-    ["slotsUntilReady", getU64Encoder()],
   ]);
 }
 
@@ -55,8 +41,6 @@ export function getLutExtendedDecoder(): FixedSizeDecoder<LutExtended> {
     ["wrapper", getAddressDecoder()],
     ["addressesAdded", getU32Decoder()],
     ["totalAddresses", getU32Decoder()],
-    ["isReady", getBooleanDecoder()],
-    ["slotsUntilReady", getU64Decoder()],
   ]);
 }
 

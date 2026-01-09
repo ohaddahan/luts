@@ -13,12 +13,15 @@ pub enum LutsError {
     /// 6000 - Invalid Lookup Table address
     #[error("Invalid Lookup Table address")]
     InvalidLookupTable = 0x1770,
-    /// 6001 - LUT not yet ready for use (cooldown period)
-    #[error("LUT not yet ready for use (cooldown period)")]
+    /// 6001 - LUT not yet ready - cooldown period not passed
+    #[error("LUT not yet ready - cooldown period not passed")]
     LutNotReady = 0x1771,
     /// 6002 - Maximum addresses exceeded (256 limit)
     #[error("Maximum addresses exceeded (256 limit)")]
     MaxAddressesExceeded = 0x1772,
+    /// 6003 - No new addresses to add
+    #[error("No new addresses to add")]
+    NoNewAddresses = 0x1773,
 }
 
 impl From<LutsError> for solana_program_error::ProgramError {

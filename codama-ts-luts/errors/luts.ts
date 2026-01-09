@@ -16,22 +16,26 @@ import { LUTS_PROGRAM_ADDRESS } from "../programs";
 
 /** InvalidLookupTable: Invalid Lookup Table address */
 export const LUTS_ERROR__INVALID_LOOKUP_TABLE = 0x1770; // 6000
-/** LutNotReady: LUT not yet ready for use (cooldown period) */
+/** LutNotReady: LUT not yet ready - cooldown period not passed */
 export const LUTS_ERROR__LUT_NOT_READY = 0x1771; // 6001
 /** MaxAddressesExceeded: Maximum addresses exceeded (256 limit) */
 export const LUTS_ERROR__MAX_ADDRESSES_EXCEEDED = 0x1772; // 6002
+/** NoNewAddresses: No new addresses to add */
+export const LUTS_ERROR__NO_NEW_ADDRESSES = 0x1773; // 6003
 
 export type LutsError =
   | typeof LUTS_ERROR__INVALID_LOOKUP_TABLE
   | typeof LUTS_ERROR__LUT_NOT_READY
-  | typeof LUTS_ERROR__MAX_ADDRESSES_EXCEEDED;
+  | typeof LUTS_ERROR__MAX_ADDRESSES_EXCEEDED
+  | typeof LUTS_ERROR__NO_NEW_ADDRESSES;
 
 let lutsErrorMessages: Record<LutsError, string> | undefined;
 if (process.env.NODE_ENV !== "production") {
   lutsErrorMessages = {
     [LUTS_ERROR__INVALID_LOOKUP_TABLE]: `Invalid Lookup Table address`,
-    [LUTS_ERROR__LUT_NOT_READY]: `LUT not yet ready for use (cooldown period)`,
+    [LUTS_ERROR__LUT_NOT_READY]: `LUT not yet ready - cooldown period not passed`,
     [LUTS_ERROR__MAX_ADDRESSES_EXCEEDED]: `Maximum addresses exceeded (256 limit)`,
+    [LUTS_ERROR__NO_NEW_ADDRESSES]: `No new addresses to add`,
   };
 }
 
@@ -48,13 +52,13 @@ export function isLutsError<TProgramErrorCode extends LutsError>(
   transactionMessage: {
     instructions: Record<number, { programAddress: Address }>;
   },
-  code?: TProgramErrorCode,
+  code?: TProgramErrorCode
 ): error is SolanaError<typeof SOLANA_ERROR__INSTRUCTION_ERROR__CUSTOM> &
   Readonly<{ context: Readonly<{ code: TProgramErrorCode }> }> {
   return isProgramError<TProgramErrorCode>(
     error,
     transactionMessage,
     LUTS_PROGRAM_ADDRESS,
-    code,
+    code
   );
 }

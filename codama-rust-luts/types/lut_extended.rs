@@ -19,6 +19,4 @@ pub struct LutExtended {
     pub wrapper: Pubkey,
     pub addresses_added: u32,
     pub total_addresses: u32,
-    pub is_ready: bool,
-    pub slots_until_ready: u64,
 }
