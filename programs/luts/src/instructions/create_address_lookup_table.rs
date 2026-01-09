@@ -43,7 +43,6 @@ pub fn create_address_lookup_table(
     user_address_lookup_table.id = args.id;
     user_address_lookup_table.signer = signer.key();
     user_address_lookup_table.address_lookup_table = address_lookup_table.key();
-    user_address_lookup_table.accounts = Vec::new();
     user_address_lookup_table.size = 0;
     let clock = Clock::get()?;
     user_address_lookup_table.last_updated_slot = clock.slot;

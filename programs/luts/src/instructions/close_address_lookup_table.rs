@@ -2,7 +2,6 @@ use crate::constants::LutProgram;
 use crate::events::LutClosed;
 use crate::state::user_address_lookup_table::UserAddressLookupTable;
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program;
 use solana_address_lookup_table_interface::instruction::close_lookup_table;
 
 #[derive(Accounts)]
@@ -30,21 +29,15 @@ pub fn close_address_lookup_table(ctx: Context<CloseAddressLookupTable>) -> Resu
     let signer = &ctx.accounts.signer;
     let user_address_lookup_table = &ctx.accounts.user_address_lookup_table;
     let address_lookup_table = &ctx.accounts.address_lookup_table;
-
-    let binding = signer.key();
-    let seeds = &[
-        UserAddressLookupTable::SEED.as_bytes(),
-        binding.as_ref(),
-        &[user_address_lookup_table.bump],
-    ];
-
+    let seeds = user_address_lookup_table.seeds();
+    let seed_slices: Vec<&[u8]> = seeds.iter().map(|v| v.as_slice()).collect();
+    let signer_seeds: &[&[&[u8]]] = &[seed_slices.as_slice()];
     let ix = close_lookup_table(
         address_lookup_table.key(),
         user_address_lookup_table.key(),
         signer.key(),
     );
-
-    solana_program::program::invoke_signed(
+    program::invoke_signed(
         &ix,
         &[
             signer.to_account_info(),
@@ -52,13 +45,11 @@ pub fn close_address_lookup_table(ctx: Context<CloseAddressLookupTable>) -> Resu
             address_lookup_table.to_account_info(),
             user_address_lookup_table.to_account_info(),
         ],
-        &[seeds],
+        signer_seeds,
     )?;
-
     emit!(LutClosed {
         wrapper: user_address_lookup_table.key(),
         lut_address: address_lookup_table.key(),
     });
-
     Ok(())
 }

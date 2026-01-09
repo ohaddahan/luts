@@ -3,8 +3,9 @@ use crate::error::LutError;
 use crate::events::LutExtended;
 use crate::state::user_address_lookup_table::UserAddressLookupTable;
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program;
+use anchor_lang::solana_program::program;
 use solana_address_lookup_table_interface::instruction::extend_lookup_table;
+use solana_address_lookup_table_interface::state::AddressLookupTable;
 
 #[derive(Accounts)]
 pub struct ExtendAddressLookupTable<'info> {
@@ -31,46 +32,38 @@ pub fn extend_address_lookup_table(ctx: Context<ExtendAddressLookupTable>) -> Re
     let user_address_lookup_table = &mut ctx.accounts.user_address_lookup_table;
     let address_lookup_table = &ctx.accounts.address_lookup_table;
     let system_program = &ctx.accounts.system_program;
+    let lut_data = address_lookup_table.try_borrow_data()?;
+    let lut =
+        AddressLookupTable::deserialize(&lut_data).map_err(|_| LutError::InvalidLookupTable)?;
+    let existing_addresses = lut.addresses;
     let new_addresses: Vec<Pubkey> = ctx
         .remaining_accounts
         .iter()
         .map(|acc| *acc.key)
-        .filter(|addr| !user_address_lookup_table.accounts.contains(addr))
+        .filter(|addr| !existing_addresses.contains(addr))
         .collect();
     if new_addresses.is_empty() {
         return Ok(());
     }
     user_address_lookup_table.size += new_addresses.len() as u64;
-    let total_after = user_address_lookup_table
-        .accounts
-        .len()
-        .saturating_add(new_addresses.len());
+    let total_after = existing_addresses.len().saturating_add(new_addresses.len());
     require!(
         total_after <= UserAddressLookupTable::MAX_ADDRESSES,
         LutError::MaxAddressesExceeded
     );
+    drop(lut_data);
     let clock = Clock::get()?;
     user_address_lookup_table.last_updated_slot = clock.slot;
     user_address_lookup_table.last_updated_timestamp = clock.unix_timestamp;
-
-    user_address_lookup_table
-        .accounts
-        .extend(new_addresses.iter().cloned());
-
     let ix = extend_lookup_table(
         address_lookup_table.key(),
         user_address_lookup_table.key(),
         Some(signer.key()),
         new_addresses.clone(),
     );
-
-    let binding = signer.key();
-    let seeds = &[
-        UserAddressLookupTable::SEED.as_bytes(),
-        binding.as_ref(),
-        &[user_address_lookup_table.bump],
-    ];
-
+    let seeds = user_address_lookup_table.seeds();
+    let seed_slices: Vec<&[u8]> = seeds.iter().map(|v| v.as_slice()).collect();
+    let signer_seeds: &[&[&[u8]]] = &[seed_slices.as_slice()];
     program::invoke_signed(
         &ix,
         &[
@@ -79,19 +72,16 @@ pub fn extend_address_lookup_table(ctx: Context<ExtendAddressLookupTable>) -> Re
             address_lookup_table.to_account_info(),
             user_address_lookup_table.to_account_info(),
         ],
-        &[seeds],
+        signer_seeds,
     )?;
-
     let is_ready = user_address_lookup_table.is_ready(clock.slot);
     let slots_until_ready = user_address_lookup_table.slots_until_ready(clock.slot);
-
     emit!(LutExtended {
         wrapper: user_address_lookup_table.key(),
         addresses_added: new_addresses.len() as u32,
-        total_addresses: user_address_lookup_table.accounts.len() as u32,
+        total_addresses: total_after as u32,
         is_ready,
         slots_until_ready,
     });
-
     Ok(())
 }

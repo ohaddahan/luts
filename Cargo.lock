@@ -3222,6 +3222,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d1673f67efe870b64a65cb39e6194be5b26527691ce5922909939961a6e6b395"
 dependencies = [
  "bincode",
+ "bytemuck",
  "serde",
  "serde_derive",
  "solana-clock 2.2.2",
