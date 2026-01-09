@@ -3,6 +3,12 @@ name = "luts"
 version = "0.1.0"
 description = "Address Lookup Table wrapper with deduplication and readiness tracking"
 edition = "2021"
+authors = ["Ohad Dahan <ohaddahan@gmail.com>"]
+repository = "https://github.com/ohaddahan/luts"
+keywords = ["solana", "anchor", "address-lookup-table"]
+categories = ["cryptography::cryptocurrencies"]
+license = "MIT"
+readme = "README.md"
 
 [lib]
 crate-type = ["cdylib", "lib"]
