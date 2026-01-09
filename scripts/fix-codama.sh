@@ -19,11 +19,11 @@ if [ -f "$RUST_DIR/mod.rs" ]; then
 fi
 
 # Fix pub(crate) to pub in all Rust files
-find "$RUST_DIR" -name "*.rs" -exec sed -i '' 's/pub(crate)/pub/g' {} \;
-
-# Fix type paths
-find "$RUST_DIR" -name "*.rs" -exec sed -i '' "s/crate::types::/crate::codama_rust_luts::types::/g" {} \;
-find "$RUST_DIR" -name "*.rs" -exec sed -i '' "s/crate::generated::types::/crate::codama_rust_luts::types::/g" {} \;
+find "$RUST_DIR" -name "*.rs" | while read -r file; do
+  sed -i 's/pub(crate)/pub/g' "$file"
+  sed -i 's/crate::types::/crate::codama_rust_luts::types::/g' "$file"
+  sed -i 's/crate::generated::types::/crate::codama_rust_luts::types::/g' "$file"
+done
 
 # Format Rust files
 echo "Formatting Rust files..."

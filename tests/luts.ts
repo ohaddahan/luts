@@ -15,7 +15,9 @@ describe("luts", () => {
     "AddressLookupTab1e1111111111111111111111111"
   );
 
-  function getUserAddressLookupTablePda(signer: PublicKey): [PublicKey, number] {
+  function getUserAddressLookupTablePda(
+    signer: PublicKey
+  ): [PublicKey, number] {
     return PublicKey.findProgramAddressSync(
       [Buffer.from("UserAddressLookupTable"), signer.toBuffer()],
       program.programId

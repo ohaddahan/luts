@@ -1,7 +1,7 @@
 import { createFromRoot } from "codama";
 import { rootNodeFromAnchor } from "@codama/nodes-from-anchor";
-import { renderRustVisitor } from "@codama/renderers-rust";
-import { renderJavaScriptVisitor } from "@codama/renderers-js";
+import { renderVisitor as renderRustVisitor } from "@codama/renderers-rust";
+import { renderVisitor as renderJavaScriptVisitor } from "@codama/renderers-js";
 import * as fs from "fs";
 import * as path from "path";
 
